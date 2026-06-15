@@ -120,8 +120,15 @@ async def rate_limiting_middleware(request: Request, call_next):
         else:
             client_ip = request.client.host if request.client else "unknown"
         
-        # Bypass rate limiting for localhost to allow local development & testing
-        if client_ip in ("127.0.0.1", "localhost", "::1"):
+        # Bypass rate limiting if disabled via env var or for local/private IP ranges
+        disable_limit = os.environ.get("DISABLE_RATE_LIMIT", "false").lower() in ("true", "1", "yes")
+        is_local = (
+            client_ip in ("127.0.0.1", "localhost", "::1") or
+            client_ip.startswith("192.168.") or
+            client_ip.startswith("10.") or
+            any(client_ip.startswith(f"172.{i}.") for i in range(16, 32))
+        )
+        if disable_limit or is_local:
             response = await call_next(request)
             return response
             
@@ -129,9 +136,9 @@ async def rate_limiting_middleware(request: Request, call_next):
         window = 60
         
         if request.url.path == "/api/auth/login":
-            limit = 15   # Increase login limit to 15 requests/min for testing safety
+            limit = 60   # Increased login limit to 60 requests/min for testing safety
         elif request.url.path == "/api/upload":
-            limit = 10  # Upload limit: 10 requests/min
+            limit = 30   # Increased upload limit to 30 requests/min
             
         if is_rate_limited(client_ip, limit, window):
             return JSONResponse(

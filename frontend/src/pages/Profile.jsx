@@ -1,16 +1,7 @@
 import React, { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useThemeLang } from "../context/ThemeLangContext";
-import {
-  User,
-  Mail,
-  Phone,
-  MapPin,
-  Calendar,
-  ShieldCheck,
-  Navigation,
-  CheckCircle2,
-} from "lucide-react";
+import { User, Mail, Phone, MapPin, Calendar, ShieldCheck, Navigation, CheckCircle2 } from "lucide-react";
 
 // Haversine distance calculator
 function getDistance(lat1, lon1, lat2, lon2) {
@@ -295,8 +286,6 @@ export default function Profile() {
                 </button>
               )}
             </div>
-
-
           </div>
         </div>
 
